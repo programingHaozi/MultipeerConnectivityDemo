@@ -13,7 +13,9 @@
 
 @interface ViewController ()<MCNearbyServiceAdvertiserDelegate,
                                 MCNearbyServiceBrowserDelegate,
-                                    MCSessionDelegate>
+                                    MCSessionDelegate,
+                                        MCBrowserViewControllerDelegate,
+                                            MCAdvertiserAssistantDelegate>
 
 @property (nonatomic, strong) MCPeerID *peerID;
 
@@ -23,7 +25,12 @@
 
 @property (nonatomic, strong) MCSession *session;
 
+@property (nonatomic, strong) MCBrowserViewController *browserViewController;
+
+@property (nonatomic, strong) MCAdvertiserAssistant *assistant;
+
 @property (weak, nonatomic) IBOutlet UITextField *messageTextField;
+
 
 @end
 
@@ -53,7 +60,7 @@
 
 - (void)initPeerID
 {
-    MCPeerID *peerID = [[MCPeerID alloc]initWithDisplayName:@"temp"];
+    MCPeerID *peerID = [[MCPeerID alloc]initWithDisplayName:@"haozi"];
     self.peerID = peerID;
 }
 
@@ -91,11 +98,26 @@
 - (IBAction)broadcastAction:(id)sender
 {
     [self.advertiser startAdvertisingPeer];
+    
+//    NSDictionary *dic = @{
+//                          @"key1":@"chen",
+//                          @"key2":@"hao"
+//                          };
+//    
+//    
+//    self.assistant = [[MCAdvertiserAssistant alloc]initWithServiceType:SERVICETYPE discoveryInfo:dic session:self.session];
+//    self.assistant.delegate = self;
+//    [self.assistant start];
 }
 
 - (IBAction)browserAction:(id)sender
 {
-    [self.browser startBrowsingForPeers];
+//    [self.browser startBrowsingForPeers];
+    
+    
+    self.browserViewController = [[MCBrowserViewController alloc]initWithBrowser:self.browser session:self.session];
+    self.browserViewController.delegate = self;
+    [self presentViewController:self.browserViewController animated:YES completion:nil];
 }
 - (IBAction)sendDataAction:(id)sender
 {
@@ -173,6 +195,31 @@ didReceiveData:(NSData *)data
         
         [alert show];
     });
+    
+}
+
+
+#pragma mark - MCBrowserViewControllerDelegate -
+
+- (void)browserViewControllerDidFinish:(MCBrowserViewController *)browserViewController
+{
+    [self.browserViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)browserViewControllerWasCancelled:(MCBrowserViewController *)browserViewController
+{
+     [self.browserViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - MCAdvertiserAssistantDelegate -
+
+-(void)advertiserAssistantWillPresentInvitation:(MCAdvertiserAssistant *)advertiserAssistant
+{
+    
+}
+
+-(void)advertiserAssistantDidDismissInvitation:(MCAdvertiserAssistant *)advertiserAssistant
+{
     
 }
 
